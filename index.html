@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Десктопное веб-приложение для заказа грузоперевозок, расчета рейса и входа по номеру телефона."
+    >
+    <title>Груз в Рейс - личный кабинет грузоперевозок</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Навигация">
+        <a class="brand" href="#dashboard" aria-label="Груз в Рейс">
+          <span class="brand-mark" aria-hidden="true">ГР</span>
+          <span>
+            <strong>Груз в Рейс</strong>
+            <small>логистическая платформа</small>
+          </span>
+        </a>
+
+        <nav class="side-nav" aria-label="Разделы кабинета">
+          <a class="is-active" href="#dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3z"></path><path d="M13 21h8V11h-8z"></path><path d="M13 3h8v5h-8z"></path><path d="M3 21h8v-5H3z"></path></svg>
+            Панель
+          </a>
+          <a href="#orders">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+            Заявки
+          </a>
+          <a href="#drivers">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v10H3z"></path><path d="M14 10h4l3 4v3h-7z"></path><path d="M7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path><path d="M17 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path></svg>
+            Перевозчики
+          </a>
+          <a href="#documents">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h5"></path></svg>
+            Документы
+          </a>
+        </nav>
+
+        <div class="support-box">
+          <span class="status-dot"></span>
+          <strong>Диспетчер онлайн</strong>
+          <small>Ответ обычно за 3 минуты</small>
+          <a href="tel:+78005550192">8 800 555-01-92</a>
+        </div>
+      </aside>
+
+      <main class="app-main" id="dashboard">
+        <header class="topbar">
+          <div class="topbar-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35"></path><circle cx="11" cy="11" r="7"></circle></svg>
+            <input type="search" placeholder="Найти заявку, маршрут или перевозчика">
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button" type="button" aria-label="Уведомления">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+            </button>
+            <button class="button ghost" type="button" data-auth-open data-auth-mode-open="login">Войти</button>
+            <button class="button primary" type="button" data-auth-open data-auth-mode-open="register">Регистрация</button>
+          </div>
+        </header>
+
+        <section class="dashboard-grid" aria-label="Рабочая область">
+          <section class="panel order-panel" aria-labelledby="order-title">
+            <div class="panel-head">
+              <div>
+                <span class="section-kicker">Новый рейс</span>
+                <h1 id="order-title">Создать заявку на перевозку</h1>
+              </div>
+              <div class="route-badge">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                Межгород
+              </div>
+            </div>
+
+            <form class="route-form" id="route-form">
+              <div class="route-line">
+                <label>
+                  Откуда
+                  <input name="from" list="city-list" value="Москва" autocomplete="address-level2">
+                </label>
+                <span class="route-swap" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="m7 7 10 10"></path><path d="M17 7v10H7"></path></svg>
+                </span>
+                <label>
+                  Куда
+                  <input name="to" list="city-list" value="Казань" autocomplete="address-level2">
+                </label>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Тип кузова
+                  <select name="vehicle">
+                    <option value="tent">Тент 20 т</option>
+                    <option value="ref">Рефрижератор</option>
+                    <option value="gazelle">Газель</option>
+                    <option value="flatbed">Бортовой</option>
+                  </select>
+                </label>
+                <label>
+                  Груз
+                  <select name="cargo">
+                    <option value="standard">Обычный</option>
+                    <option value="fragile">Хрупкий</option>
+                    <option value="food">Пищевой</option>
+                    <option value="oversize">Негабарит</option>
+                  </select>
+                </label>
+                <label>
+                  Вес, кг
+                  <input name="weight" type="number" min="50" max="22000" step="50" value="1200">
+                </label>
+                <label>
+                  Объем, м³
+                  <input name="volume" type="number" min="1" max="120" step="1" value="8">
+                </label>
+                <label>
+                  Дата погрузки
+                  <input name="date" type="date">
+                </label>
+                <label>
+                  Время
+                  <select name="time">
+                    <option>09:00-12:00</option>
+                    <option>12:00-15:00</option>
+                    <option>15:00-18:00</option>
+                    <option>18:00-21:00</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="option-row" aria-label="Дополнительные параметры">
+                <label class="check-option">
+                  <input name="express" type="checkbox">
+                  Срочная подача
+                </label>
+                <label class="check-option">
+                  <input name="temperature" type="checkbox">
+                  Температурный режим
+                </label>
+                <label class="check-option">
+                  <input name="insurance" type="checkbox" checked>
+                  Страхование
+                </label>
+              </div>
+
+              <div class="quote-strip" aria-live="polite">
+                <div>
+                  <small>Ориентировочная ставка</small>
+                  <strong id="quote-price">-</strong>
+                </div>
+                <div>
+                  <small>Маршрут</small>
+                  <strong id="quote-route">-</strong>
+                </div>
+                <div>
+                  <small>Срок</small>
+                  <strong id="quote-days">-</strong>
+                </div>
+                <button class="button primary" type="submit">
+                  Разместить заявку
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+                </button>
+              </div>
+            </form>
+
+            <datalist id="city-list">
+              <option value="Москва"></option>
+              <option value="Санкт-Петербург"></option>
+              <option value="Казань"></option>
+              <option value="Нижний Новгород"></option>
+              <option value="Екатеринбург"></option>
+              <option value="Самара"></option>
+              <option value="Новосибирск"></option>
+              <option value="Краснодар"></option>
+              <option value="Ростов-на-Дону"></option>
+              <option value="Челябинск"></option>
+              <option value="Пермь"></option>
+              <option value="Уфа"></option>
+            </datalist>
+          </section>
+
+          <aside class="panel auth-card" aria-labelledby="auth-card-title">
+            <div class="auth-card-top">
+              <span class="section-kicker">Личный кабинет</span>
+              <h2 id="auth-card-title">Вход и регистрация по телефону</h2>
+              <p>Подтверждение доступно через SMS-код или Telegram. После входа появится профиль и быстрый доступ к заявкам.</p>
+            </div>
+
+            <div class="auth-methods" aria-label="Способы подтверждения">
+              <span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4 20-7Z"></path></svg>
+                Telegram
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg>
+                SMS
+              </span>
+            </div>
+
+            <div class="profile-preview" id="profile-preview">
+              <div class="avatar" aria-hidden="true">ГР</div>
+              <div>
+                <strong>Гость</strong>
+                <small>Войдите, чтобы сохранять маршруты</small>
+              </div>
+            </div>
+
+            <div class="auth-card-actions">
+              <button class="button primary" type="button" data-auth-open data-auth-mode-open="login">Войти</button>
+              <button class="button ghost" type="button" data-auth-open data-auth-mode-open="register">Создать аккаунт</button>
+            </div>
+          </aside>
+
+          <section class="panel map-panel" aria-labelledby="map-title">
+            <div class="panel-head compact">
+              <div>
+                <span class="section-kicker">Карта рейса</span>
+                <h2 id="map-title">Москва - Казань</h2>
+              </div>
+              <span class="chip success">Подбор машин</span>
+            </div>
+            <div class="route-map" aria-hidden="true">
+              <img src="assets/route-board.svg" alt="">
+              <div class="map-overlay"></div>
+              <span class="map-point start">МСК</span>
+              <span class="map-point end">КЗН</span>
+              <span class="map-line"></span>
+            </div>
+          </section>
+
+          <section class="panel orders-panel" id="orders" aria-labelledby="orders-title">
+            <div class="panel-head compact">
+              <div>
+                <span class="section-kicker">Активные заявки</span>
+                <h2 id="orders-title">Рейсы в работе</h2>
+              </div>
+              <button class="button ghost small" type="button">Все заявки</button>
+            </div>
+
+            <div class="orders-table" role="table" aria-label="Список заявок">
+              <div class="table-row table-head" role="row">
+                <span role="columnheader">Маршрут</span>
+                <span role="columnheader">Груз</span>
+                <span role="columnheader">Ставка</span>
+                <span role="columnheader">Статус</span>
+              </div>
+              <div class="table-row" role="row">
+                <span role="cell">Москва - Казань</span>
+                <span role="cell">Паллеты, 1.2 т</span>
+                <span role="cell">78 400 ₽</span>
+                <span role="cell"><b class="chip success">3 отклика</b></span>
+              </div>
+              <div class="table-row" role="row">
+                <span role="cell">Самара - Уфа</span>
+                <span role="cell">Оборудование, 4 т</span>
+                <span role="cell">96 700 ₽</span>
+                <span role="cell"><b class="chip warning">Проверка</b></span>
+              </div>
+              <div class="table-row" role="row">
+                <span role="cell">Пермь - Москва</span>
+                <span role="cell">Сборный груз</span>
+                <span role="cell">112 900 ₽</span>
+                <span role="cell"><b class="chip neutral">Черновик</b></span>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="auth-modal" id="auth-modal" hidden>
+      <div class="auth-backdrop" data-auth-close></div>
+      <section class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <button class="icon-button close-button" type="button" data-auth-close aria-label="Закрыть окно">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+
+        <div class="auth-dialog-head">
+          <span class="section-kicker">Без пароля</span>
+          <h2 id="auth-title">Вход по номеру телефона</h2>
+          <p id="auth-subtitle">Получите одноразовый код в SMS или подтвердите вход через Telegram.</p>
+        </div>
+
+        <div class="segmented" role="tablist" aria-label="Режим авторизации">
+          <button class="is-active" type="button" data-auth-mode="login">Вход</button>
+          <button type="button" data-auth-mode="register">Регистрация</button>
+        </div>
+
+        <form class="auth-form" id="auth-form">
+          <div class="register-fields" id="register-fields" hidden>
+            <label>
+              Имя
+              <input name="name" autocomplete="name" placeholder="Иван">
+            </label>
+            <label>
+              Роль
+              <select name="role">
+                <option value="shipper">Грузовладелец</option>
+                <option value="carrier">Перевозчик</option>
+                <option value="dispatcher">Логист</option>
+              </select>
+            </label>
+            <label class="wide">
+              Компания
+              <input name="company" autocomplete="organization" placeholder="ООО Ромашка">
+            </label>
+          </div>
+
+          <label>
+            Номер телефона
+            <input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 999 123-45-67" required>
+          </label>
+
+          <fieldset class="channel-field">
+            <legend>Куда отправить подтверждение</legend>
+            <div class="channel-options">
+              <button class="channel-option is-active" type="button" data-channel="sms">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg>
+                SMS
+              </button>
+              <button class="channel-option" type="button" data-channel="telegram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4 20-7Z"></path></svg>
+                Telegram
+              </button>
+            </div>
+          </fieldset>
+
+          <label class="consent-row">
+            <input name="consent" type="checkbox" checked>
+            Согласие на обработку персональных данных
+          </label>
+
+          <button class="button primary full" type="submit">Получить код</button>
+        </form>
+
+        <form class="verify-form" id="verify-form" hidden>
+          <div class="verify-target" id="verify-target"></div>
+          <label>
+            Код подтверждения
+            <input name="code" inputmode="numeric" maxlength="4" placeholder="2486">
+          </label>
+          <button class="button primary full" type="submit">Подтвердить код</button>
+          <button class="button telegram-button full" id="telegram-confirm" type="button" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4 20-7Z"></path></svg>
+            Подтвердить в Telegram
+          </button>
+          <button class="link-button" type="button" id="back-to-phone">Изменить номер</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
