@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Шаблон размещения заявки на перевозку груза.">
+    <title>Новая заявка - Груз в Рейс</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="request-body">
+    <main class="request-shell">
+      <header class="page-head">
+        <div>
+          <span class="section-kicker" data-i18n="actions.placeOrder">Разместить заявку</span>
+          <h1 data-i18n="request.title">Новая заявка на перевозку</h1>
+          <p data-i18n="request.subtitle">Шаблон для груза, точки А и точки Б</p>
+        </div>
+        <select class="language-select" id="language-select" aria-label="Выбор языка">
+          <option value="ru">RU</option>
+          <option value="en">EN</option>
+        </select>
+      </header>
+
+      <form class="panel request-form" id="request-form">
+        <div class="request-grid">
+          <label>
+            <span data-i18n="request.pointA">Точка А</span>
+            <input name="pointA" list="request-cities" placeholder="Москва, склад, ул. Примерная 1" required>
+          </label>
+          <label>
+            <span data-i18n="request.pointB">Точка Б</span>
+            <input name="pointB" list="request-cities" placeholder="Казань, терминал" required>
+          </label>
+          <label class="wide">
+            <span data-i18n="request.cargo">Груз</span>
+            <input name="cargo" placeholder="Паллеты с оборудованием" required>
+          </label>
+          <label>
+            <span data-i18n="request.weight">Вес, кг</span>
+            <input name="weight" type="number" min="1" step="1" placeholder="1200">
+          </label>
+          <label>
+            <span data-i18n="request.volume">Объем, м³</span>
+            <input name="volume" type="number" min="1" step="1" placeholder="8">
+          </label>
+          <label>
+            Дата погрузки
+            <input name="date" type="date">
+          </label>
+          <label>
+            Тип кузова
+            <select name="vehicle">
+              <option>Тент</option>
+              <option>Рефрижератор</option>
+              <option>Газель</option>
+              <option>Бортовой</option>
+            </select>
+          </label>
+          <label class="wide">
+            Комментарий
+            <textarea name="comment" placeholder="Температурный режим, способ погрузки, контакты склада"></textarea>
+          </label>
+        </div>
+
+        <button class="button primary" type="submit" data-i18n="request.submit">Сохранить шаблон</button>
+      </form>
+
+      <datalist id="request-cities">
+        <option value="Москва"></option>
+        <option value="Санкт-Петербург"></option>
+        <option value="Казань"></option>
+        <option value="Нижний Новгород"></option>
+        <option value="Екатеринбург"></option>
+        <option value="Самара"></option>
+        <option value="Новосибирск"></option>
+        <option value="Краснодар"></option>
+      </datalist>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="languages.js"></script>
+    <script src="request.js"></script>
+  </body>
+</html>

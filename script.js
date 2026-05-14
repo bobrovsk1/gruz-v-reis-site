@@ -1,143 +1,181 @@
-const routeForm = document.querySelector("#route-form");
-const priceNode = document.querySelector("#quote-price");
-const routeNode = document.querySelector("#quote-route");
-const daysNode = document.querySelector("#quote-days");
-const toast = document.querySelector("#toast");
-const profilePreview = document.querySelector("#profile-preview");
-
-const authModal = document.querySelector("#auth-modal");
-const authForm = document.querySelector("#auth-form");
-const verifyForm = document.querySelector("#verify-form");
-const registerFields = document.querySelector("#register-fields");
-const authTitle = document.querySelector("#auth-title");
-const authSubtitle = document.querySelector("#auth-subtitle");
-const verifyTarget = document.querySelector("#verify-target");
-const telegramConfirm = document.querySelector("#telegram-confirm");
-const backToPhone = document.querySelector("#back-to-phone");
-
-const demoOtp = "2486";
+const languages = window.APP_LANGUAGES || {};
+let currentLanguage = localStorage.getItem("gruzLanguage") || "ru";
 let authMode = "login";
 let authChannel = "sms";
 let pendingUser = null;
 
-const cities = {
-  "Москва": [55.7558, 37.6173],
-  "Санкт-Петербург": [59.9311, 30.3609],
-  "Казань": [55.7961, 49.1064],
-  "Нижний Новгород": [56.3269, 44.0059],
-  "Екатеринбург": [56.8389, 60.6057],
-  "Самара": [53.1959, 50.1008],
-  "Новосибирск": [55.0084, 82.9357],
-  "Краснодар": [45.0355, 38.9753],
-  "Ростов-на-Дону": [47.2357, 39.7015],
-  "Челябинск": [55.1644, 61.4368],
-  "Пермь": [58.0105, 56.2502],
-  "Уфа": [54.7388, 55.9721]
-};
+const orders = [
+  { id: "GV-1048", route: "Москва - Казань", cargo: "Паллеты, 1.2 т", vehicle: "tent", price: 78400, status: "responses", date: "2026-05-16" },
+  { id: "GV-1047", route: "Самара - Уфа", cargo: "Оборудование, 4 т", vehicle: "ref", price: 96700, status: "checking", date: "2026-05-18" },
+  { id: "GV-1046", route: "Пермь - Москва", cargo: "Сборный груз", vehicle: "gazelle", price: 112900, status: "draft", date: "2026-05-20" },
+  { id: "GV-1045", route: "Краснодар - Ростов-на-Дону", cargo: "Продукты, 6 т", vehicle: "ref", price: 64200, status: "responses", date: "2026-05-21" },
+  { id: "GV-1044", route: "Екатеринбург - Челябинск", cargo: "Металл, 12 т", vehicle: "tent", price: 58800, status: "checking", date: "2026-05-22" }
+];
 
-const cargoRates = {
-  standard: 1,
-  fragile: 1.14,
-  food: 1.09,
-  oversize: 1.28
-};
+const carriers = [
+  { name: "ТрансЛайн", city: "Москва", vehicles: "42 тента, 8 рефрижераторов", rating: "4.9", docs: "ИНН, договор, страховка", status: "Проверен" },
+  { name: "Север Логистик", city: "Санкт-Петербург", vehicles: "18 фур, 12 газелей", rating: "4.8", docs: "ИНН, договор", status: "Проверен" },
+  { name: "Волга Рейс", city: "Казань", vehicles: "24 тента, 5 бортовых", rating: "4.7", docs: "ИНН, страховка", status: "Новый" },
+  { name: "Урал Карго", city: "Екатеринбург", vehicles: "31 фура, 6 рефрижераторов", rating: "4.9", docs: "ИНН, договор, акты", status: "Проверен" },
+  { name: "ЮгТранс", city: "Краснодар", vehicles: "16 рефрижераторов", rating: "4.6", docs: "ИНН, договор", status: "Проверка" },
+  { name: "Сибирский маршрут", city: "Новосибирск", vehicles: "29 тентов, 4 негабарита", rating: "4.8", docs: "ИНН, договор, страховка", status: "Проверен" }
+];
 
-const vehicleRates = {
-  tent: 1,
-  ref: 1.2,
-  gazelle: 0.72,
-  flatbed: 1.08
-};
+let documents = [
+  { name: "ИНН ООО ТрансЛайн.pdf", type: "inn", owner: "ТрансЛайн", date: "14.05.2026" },
+  { name: "Договор GV-1048.docx", type: "contract", owner: "Груз в Рейс", date: "13.05.2026" },
+  { name: "Акт выполненных работ.pdf", type: "act", owner: "Волга Рейс", date: "12.05.2026" },
+  { name: "Страховка груза GV-1045.pdf", type: "insurance", owner: "ЮгТранс", date: "11.05.2026" }
+];
 
-function toRadians(value) {
-  return (value * Math.PI) / 180;
-}
+const t = (key) => languages[currentLanguage]?.[key] || languages.ru?.[key] || key;
+const money = (value) => new Intl.NumberFormat(currentLanguage === "ru" ? "ru-RU" : "en-US", {
+  style: "currency",
+  currency: "RUB",
+  maximumFractionDigits: 0
+}).format(value);
 
-function distanceKm(from, to) {
-  const start = cities[from.trim()];
-  const end = cities[to.trim()];
-
-  if (!start || !end) {
-    return null;
-  }
-
-  const radius = 6371;
-  const dLat = toRadians(end[0] - start[0]);
-  const dLon = toRadians(end[1] - start[1]);
-  const lat1 = toRadians(start[0]);
-  const lat2 = toRadians(end[0]);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-  return Math.max(40, Math.round(radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 1.22));
-}
-
-function money(value) {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    maximumFractionDigits: 0
-  }).format(value);
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage;
+  document.querySelector("#language-select").value = currentLanguage;
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+    node.placeholder = t(node.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((node) => {
+    const text = t(node.dataset.i18nTitle);
+    node.title = text;
+    node.setAttribute("aria-label", text);
+  });
+  setAuthMode(authMode);
+  renderOrders();
+  renderCarriers();
+  renderDocuments();
 }
 
 function showToast(message) {
+  const toast = document.querySelector("#toast");
   toast.textContent = message;
   toast.classList.add("is-visible");
   window.setTimeout(() => toast.classList.remove("is-visible"), 4200);
 }
 
-function updateQuote() {
-  const data = new FormData(routeForm);
-  const from = data.get("from") || "";
-  const to = data.get("to") || "";
-  const route = distanceKm(from, to);
-  const weight = Number(data.get("weight")) || 0;
-  const volume = Number(data.get("volume")) || 0;
+function setPage(page) {
+  const normalized = document.querySelector(`[data-page="${page}"]`) ? page : "home";
+  document.querySelectorAll("[data-page]").forEach((section) => {
+    section.classList.toggle("is-active", section.dataset.page === normalized);
+  });
+  document.querySelectorAll("[data-page-link]").forEach((link) => {
+    link.classList.toggle("is-active", link.dataset.pageLink === normalized);
+  });
+}
 
-  if (!route || weight <= 0 || volume <= 0) {
-    priceNode.textContent = "-";
-    routeNode.textContent = "Проверьте города";
-    daysNode.textContent = "-";
-    return;
-  }
+function statusLabel(status) {
+  if (status === "responses") return t("orders.statusResponses");
+  if (status === "checking") return t("orders.statusChecking");
+  return t("orders.statusDraft");
+}
 
-  const paidWeight = Math.max(weight, volume * 250);
-  const kmRate = paidWeight > 8000 ? 78 : paidWeight > 2500 ? 58 : 38;
-  const base = 14500;
-  const vehicleRate = vehicleRates[data.get("vehicle")] || 1;
-  const cargoRate = cargoRates[data.get("cargo")] || 1;
-  const expressRate = data.get("express") ? 1.18 : 1;
-  const temperatureFee = data.get("temperature") ? Math.max(9000, route * 10) : 0;
-  const insuranceFee = data.get("insurance") ? Math.max(3200, paidWeight * 1.8) : 0;
-  const price = Math.round((base + route * kmRate + paidWeight * 4.6 + temperatureFee + insuranceFee) * vehicleRate * cargoRate * expressRate);
-  const days = Math.max(1, Math.ceil(route / (data.get("express") ? 760 : 560)));
+function vehicleLabel(vehicle) {
+  if (vehicle === "ref") return t("vehicle.ref");
+  if (vehicle === "gazelle") return t("vehicle.gazelle");
+  return t("vehicle.tent");
+}
 
-  priceNode.textContent = money(price);
-  routeNode.textContent = `${route.toLocaleString("ru-RU")} км`;
-  daysNode.textContent = `${days}-${days + 1} дн.`;
+function renderOrders() {
+  const list = document.querySelector("#orders-list");
+  const search = document.querySelector("#order-search")?.value.trim().toLowerCase() || "";
+  const status = document.querySelector("#order-status")?.value || "all";
+  const vehicle = document.querySelector("#order-vehicle")?.value || "all";
+  const dateFrom = document.querySelector("#date-from")?.value || "";
+  const dateTo = document.querySelector("#date-to")?.value || "";
+  const minPrice = Number(document.querySelector("#min-price")?.value) || 0;
+  const maxPrice = Number(document.querySelector("#max-price")?.value) || Infinity;
+
+  const filtered = orders.filter((order) => {
+    const haystack = `${order.id} ${order.route} ${order.cargo}`.toLowerCase();
+    return (
+      (!search || haystack.includes(search)) &&
+      (status === "all" || order.status === status) &&
+      (vehicle === "all" || order.vehicle === vehicle) &&
+      (!dateFrom || order.date >= dateFrom) &&
+      (!dateTo || order.date <= dateTo) &&
+      order.price >= minPrice &&
+      order.price <= maxPrice
+    );
+  });
+
+  list.replaceChildren(...filtered.map((order) => {
+    const row = document.createElement("div");
+    row.className = "table-row";
+    row.setAttribute("role", "row");
+    row.innerHTML = `
+      <span role="cell"><b>${order.route}</b><small>${order.id} · ${order.date}</small></span>
+      <span role="cell">${order.cargo}</span>
+      <span role="cell">${vehicleLabel(order.vehicle)}</span>
+      <span role="cell">${money(order.price)}</span>
+      <span role="cell"><b class="chip ${order.status === "responses" ? "success" : order.status === "checking" ? "warning" : "neutral"}">${statusLabel(order.status)}</b></span>
+    `;
+    return row;
+  }));
+}
+
+function renderCarriers() {
+  const list = document.querySelector("#carrier-list");
+  list.replaceChildren(...carriers.map((carrier) => {
+    const card = document.createElement("article");
+    card.className = "carrier-card panel";
+    card.innerHTML = `
+      <div class="carrier-avatar">${carrier.name.slice(0, 2).toUpperCase()}</div>
+      <div>
+        <h2>${carrier.name}</h2>
+        <p>${carrier.city} · ${carrier.vehicles}</p>
+      </div>
+      <div class="carrier-meta">
+        <span class="chip success">★ ${carrier.rating}</span>
+        <span class="chip neutral">${carrier.status}</span>
+      </div>
+      <small>${carrier.docs}</small>
+    `;
+    return card;
+  }));
+}
+
+function renderDocuments() {
+  const list = document.querySelector("#document-list");
+  const search = document.querySelector("#document-search")?.value.trim().toLowerCase() || "";
+  const type = document.querySelector("#document-type")?.value || "all";
+  const filtered = documents.filter((doc) => {
+    const haystack = `${doc.name} ${doc.owner}`.toLowerCase();
+    return (!search || haystack.includes(search)) && (type === "all" || doc.type === type);
+  });
+
+  list.replaceChildren(...filtered.map((doc) => {
+    const row = document.createElement("article");
+    row.className = "document-row";
+    row.innerHTML = `
+      <span class="doc-icon" aria-hidden="true">PDF</span>
+      <div>
+        <strong>${doc.name}</strong>
+        <small>${doc.owner} · ${doc.date}</small>
+      </div>
+      <button class="button ghost small" type="button">Открыть</button>
+    `;
+    return row;
+  }));
 }
 
 function normalizePhone(value) {
   const digits = value.replace(/\D/g, "").replace(/^8/, "7").slice(0, 11);
   if (!digits) return "";
-
   const normalized = digits.startsWith("7") ? digits : `7${digits}`;
-  const parts = [
-    normalized.slice(1, 4),
-    normalized.slice(4, 7),
-    normalized.slice(7, 9),
-    normalized.slice(9, 11)
-  ].filter(Boolean);
-
+  const parts = [normalized.slice(1, 4), normalized.slice(4, 7), normalized.slice(7, 9), normalized.slice(9, 11)].filter(Boolean);
   if (parts.length === 1) return `+7 ${parts[0]}`;
   if (parts.length === 2) return `+7 ${parts[0]} ${parts[1]}`;
   if (parts.length === 3) return `+7 ${parts[0]} ${parts[1]}-${parts[2]}`;
   return `+7 ${parts[0]} ${parts[1]}-${parts[2]}-${parts[3]}`;
-}
-
-function compactPhone(value) {
-  return value.replace(/\D/g, "");
 }
 
 function setAuthMode(mode) {
@@ -145,12 +183,9 @@ function setAuthMode(mode) {
   document.querySelectorAll("[data-auth-mode]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.authMode === mode);
   });
-  registerFields.hidden = mode !== "register";
-  authTitle.textContent = mode === "register" ? "Регистрация по номеру телефона" : "Вход по номеру телефона";
-  authSubtitle.textContent =
-    mode === "register"
-      ? "Создайте профиль и подтвердите номер через SMS или Telegram."
-      : "Получите одноразовый код в SMS или подтвердите вход через Telegram.";
+  document.querySelector("#register-fields").hidden = mode !== "register";
+  document.querySelector("#auth-title").textContent = mode === "register" ? t("auth.registerTitle") : t("auth.loginTitle");
+  document.querySelector("#auth-subtitle").textContent = mode === "register" ? t("auth.registerSubtitle") : t("auth.loginSubtitle");
 }
 
 function setAuthChannel(channel) {
@@ -163,147 +198,122 @@ function setAuthChannel(channel) {
 function openAuth(mode = "login") {
   setAuthMode(mode);
   setAuthChannel("sms");
-  authForm.hidden = false;
-  verifyForm.hidden = true;
-  authModal.hidden = false;
-  authForm.elements.phone.focus();
+  document.querySelector("#auth-form").hidden = false;
+  document.querySelector("#verify-form").hidden = true;
+  document.querySelector("#auth-modal").hidden = false;
+  document.querySelector("#auth-form").elements.phone.focus();
 }
 
 function closeAuth() {
-  authModal.hidden = true;
+  document.querySelector("#auth-modal").hidden = true;
 }
 
-function setProfileContent(initials, name, subtitle) {
-  const avatar = document.createElement("div");
-  const text = document.createElement("div");
-  const title = document.createElement("strong");
-  const caption = document.createElement("small");
-
-  avatar.className = "avatar";
-  avatar.setAttribute("aria-hidden", "true");
-  avatar.textContent = initials;
-  title.textContent = name;
-  caption.textContent = subtitle;
-  text.append(title, caption);
-  profilePreview.replaceChildren(avatar, text);
-}
-
-function updateProfile(user) {
-  if (!user) {
-    setProfileContent("ГР", "Гость", "Войдите, чтобы сохранять маршруты");
-    return;
-  }
-
-  setProfileContent(user.initials, user.name, `${user.phone} · номер подтвержден`);
+function setProfile(user) {
+  if (!user) return;
   document.querySelectorAll("[data-auth-open]").forEach((button) => {
-    button.textContent = button.dataset.authModeOpen === "register" ? "Профиль" : "В кабинете";
+    button.textContent = button.dataset.authModeOpen === "register" ? t("auth.profile") : t("auth.inCabinet");
   });
 }
 
-function completeAuth() {
-  const name = pendingUser?.name || "Клиент";
-  const user = {
-    name,
-    phone: pendingUser.phone,
-    role: pendingUser.role || "shipper",
-    initials: name.trim().slice(0, 2).toUpperCase()
-  };
-  localStorage.setItem("gruzAuthUser", JSON.stringify(user));
-  updateProfile(user);
-  closeAuth();
-  showToast(`${authMode === "register" ? "Регистрация завершена" : "Вход выполнен"}: ${user.phone}`);
-}
+document.querySelector("#language-select").addEventListener("change", (event) => {
+  currentLanguage = event.target.value;
+  localStorage.setItem("gruzLanguage", currentLanguage);
+  applyLanguage();
+});
 
-routeForm.addEventListener("input", updateQuote);
-routeForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  showToast(`Заявка подготовлена. ${priceNode.textContent} будет передано менеджеру после авторизации.`);
-  openAuth("login");
+window.addEventListener("hashchange", () => setPage(location.hash.replace("#", "")));
+document.querySelectorAll("[data-page-link]").forEach((link) => {
+  link.addEventListener("click", () => setPage(link.dataset.pageLink));
+});
+
+["order-search", "order-status", "order-vehicle", "date-from", "date-to", "min-price", "max-price"].forEach((id) => {
+  document.querySelector(`#${id}`)?.addEventListener("input", renderOrders);
+});
+
+document.querySelector("#reset-filters").addEventListener("click", () => {
+  ["order-search", "date-from", "date-to", "min-price", "max-price"].forEach((id) => {
+    document.querySelector(`#${id}`).value = "";
+  });
+  document.querySelector("#order-status").value = "all";
+  document.querySelector("#order-vehicle").value = "all";
+  renderOrders();
+});
+
+document.querySelector("#document-search").addEventListener("input", renderDocuments);
+document.querySelector("#document-type").addEventListener("input", renderDocuments);
+document.querySelector("#document-upload").addEventListener("change", (event) => {
+  const uploaded = Array.from(event.target.files).map((file) => ({
+    name: file.name,
+    type: file.name.toLowerCase().includes("инн") ? "inn" : file.name.toLowerCase().includes("договор") ? "contract" : "act",
+    owner: "Загружено пользователем",
+    date: new Date().toLocaleDateString("ru-RU")
+  }));
+  documents = [...uploaded, ...documents];
+  renderDocuments();
+  showToast(`Добавлено файлов: ${uploaded.length}`);
 });
 
 document.querySelectorAll("[data-auth-open]").forEach((button) => {
   button.addEventListener("click", () => openAuth(button.dataset.authModeOpen || "login"));
 });
+document.querySelectorAll("[data-auth-close]").forEach((node) => node.addEventListener("click", closeAuth));
+document.querySelectorAll("[data-auth-mode]").forEach((button) => button.addEventListener("click", () => setAuthMode(button.dataset.authMode)));
+document.querySelectorAll("[data-channel]").forEach((button) => button.addEventListener("click", () => setAuthChannel(button.dataset.channel)));
 
-document.querySelectorAll("[data-auth-close]").forEach((node) => {
-  node.addEventListener("click", closeAuth);
-});
-
-document.querySelectorAll("[data-auth-mode]").forEach((button) => {
-  button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
-});
-
-document.querySelectorAll("[data-channel]").forEach((button) => {
-  button.addEventListener("click", () => setAuthChannel(button.dataset.channel));
-});
-
-authForm.elements.phone.addEventListener("input", (event) => {
+document.querySelector("#auth-form").elements.phone.addEventListener("input", (event) => {
   event.target.value = normalizePhone(event.target.value);
 });
 
-authForm.addEventListener("submit", (event) => {
+document.querySelector("#auth-form").addEventListener("submit", (event) => {
   event.preventDefault();
-  const data = new FormData(authForm);
+  const data = new FormData(event.currentTarget);
   const phone = normalizePhone(data.get("phone") || "");
-
-  if (compactPhone(phone).length !== 11) {
+  if (phone.replace(/\D/g, "").length !== 11) {
     showToast("Введите номер телефона в формате +7 999 123-45-67");
     return;
   }
-
-  if (authMode === "register" && !data.get("consent")) {
-    showToast("Для регистрации нужно согласие на обработку персональных данных");
-    return;
-  }
-
   pendingUser = {
     phone,
     name: data.get("name") || "Клиент",
-    role: data.get("role") || "shipper",
-    company: data.get("company") || ""
+    role: data.get("role") || "shipper"
   };
-
-  authForm.hidden = true;
-  verifyForm.hidden = false;
-  verifyForm.elements.code.value = "";
-  telegramConfirm.hidden = authChannel !== "telegram";
-  verifyTarget.textContent =
-    authChannel === "telegram"
-      ? `Запрос отправлен в Telegram для ${phone}. Демо-код: ${demoOtp}.`
-      : `SMS-код отправлен на ${phone}. Демо-код: ${demoOtp}.`;
-  verifyForm.elements.code.focus();
+  event.currentTarget.hidden = true;
+  document.querySelector("#verify-form").hidden = false;
+  document.querySelector("#telegram-confirm").hidden = authChannel !== "telegram";
+  document.querySelector("#verify-target").textContent =
+    authChannel === "telegram" ? `Запрос отправлен в Telegram для ${phone}. Демо-код: 2486.` : `SMS-код отправлен на ${phone}. Демо-код: 2486.`;
 });
 
-verifyForm.addEventListener("submit", (event) => {
+document.querySelector("#verify-form").addEventListener("submit", (event) => {
   event.preventDefault();
-  const code = verifyForm.elements.code.value.trim();
-
-  if (code !== demoOtp) {
-    showToast("Неверный код подтверждения. Для демо используйте 2486.");
+  if (event.currentTarget.elements.code.value.trim() !== "2486") {
+    showToast("Неверный код. Для демо используйте 2486.");
     return;
   }
-
-  completeAuth();
+  localStorage.setItem("gruzAuthUser", JSON.stringify(pendingUser));
+  setProfile(pendingUser);
+  closeAuth();
+  showToast(`${authMode === "register" ? "Регистрация завершена" : "Вход выполнен"}: ${pendingUser.phone}`);
 });
 
-telegramConfirm.addEventListener("click", completeAuth);
+document.querySelector("#telegram-confirm").addEventListener("click", () => {
+  localStorage.setItem("gruzAuthUser", JSON.stringify(pendingUser));
+  setProfile(pendingUser);
+  closeAuth();
+  showToast(`Telegram подтвержден: ${pendingUser.phone}`);
+});
 
-backToPhone.addEventListener("click", () => {
-  authForm.hidden = false;
-  verifyForm.hidden = true;
-  authForm.elements.phone.focus();
+document.querySelector("#back-to-phone").addEventListener("click", () => {
+  document.querySelector("#auth-form").hidden = false;
+  document.querySelector("#verify-form").hidden = true;
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !authModal.hidden) closeAuth();
+  if (event.key === "Escape") closeAuth();
 });
 
 const savedUser = localStorage.getItem("gruzAuthUser");
-if (savedUser) {
-  updateProfile(JSON.parse(savedUser));
-}
+if (savedUser) setProfile(JSON.parse(savedUser));
 
-const today = new Date();
-today.setDate(today.getDate() + 1);
-routeForm.elements.date.valueAsDate = today;
-updateQuote();
+setPage(location.hash.replace("#", "") || "home");
+applyLanguage();
