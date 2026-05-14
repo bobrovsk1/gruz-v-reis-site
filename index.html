@@ -48,7 +48,7 @@
         </div>
       </aside>
 
-      <main class="app-main">
+      <main class="app-main" tabindex="-1">
         <header class="topbar">
           <div class="topbar-search">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35"></path><circle cx="11" cy="11" r="7"></circle></svg>
@@ -62,6 +62,13 @@
             </select>
             <button class="icon-button" type="button" data-i18n-title="topbar.notifications" title="Уведомления" aria-label="Уведомления">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+            </button>
+            <button class="profile-button" id="profile-button" type="button" hidden>
+              <span class="profile-avatar" id="profile-avatar">КЛ</span>
+              <span>
+                <strong id="profile-name">Клиент</strong>
+                <small id="profile-company">Компания не указана</small>
+              </span>
             </button>
             <button class="button ghost" type="button" data-auth-open data-auth-mode-open="login" data-i18n="auth.login">Войти</button>
             <button class="button primary" type="button" data-auth-open data-auth-mode-open="register" data-i18n="auth.register">Регистрация</button>
@@ -335,6 +342,54 @@
             <span data-i18n="auth.confirmTelegram">Подтвердить в Telegram</span>
           </button>
           <button class="link-button" type="button" id="back-to-phone" data-i18n="auth.changePhone">Изменить номер</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="profile-modal" id="profile-modal" hidden>
+      <div class="auth-backdrop" data-profile-close></div>
+      <section class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+        <button class="icon-button close-button" type="button" data-profile-close aria-label="Закрыть окно">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+
+        <div class="auth-dialog-head">
+          <span class="section-kicker" data-i18n="profile.kicker">Профиль</span>
+          <h2 id="profile-title" data-i18n="profile.title">Данные аккаунта</h2>
+          <p data-i18n="profile.subtitle">Проверьте данные компании и статус верификации перед размещением заявок.</p>
+        </div>
+
+        <div class="verification-card">
+          <span class="status-dot"></span>
+          <div>
+            <strong id="verification-title">Телефон подтвержден</strong>
+            <small id="verification-details">SMS/Telegram подтверждение пройдено</small>
+          </div>
+          <b id="verification-status" class="chip success">Проверен</b>
+        </div>
+
+        <form class="profile-form" id="profile-form">
+          <label>
+            <span data-i18n="auth.name">Имя</span>
+            <input name="name" autocomplete="name" required>
+          </label>
+          <label>
+            <span data-i18n="auth.company">Компания</span>
+            <input name="company" autocomplete="organization" required>
+          </label>
+          <label>
+            <span data-i18n="auth.role">Роль</span>
+            <select name="role">
+              <option value="shipper" data-i18n="auth.shipper">Грузовладелец</option>
+              <option value="carrier" data-i18n="auth.carrier">Перевозчик</option>
+              <option value="dispatcher" data-i18n="auth.dispatcher">Логист</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="auth.phone">Номер телефона</span>
+            <input name="phone" readonly>
+          </label>
+          <button class="button primary full" type="submit" data-i18n="profile.save">Сохранить изменения</button>
         </form>
       </section>
     </div>

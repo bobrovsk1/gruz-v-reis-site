@@ -3,6 +3,7 @@ let currentLanguage = localStorage.getItem("gruzLanguage") || "ru";
 let authMode = "login";
 let authChannel = "sms";
 let pendingUser = null;
+let currentUser = null;
 
 const orders = [
   { id: "GV-1048", route: "Москва - Казань", cargo: "Паллеты, 1.2 т", vehicle: "tent", price: 78400, status: "responses", date: "2026-05-16" },
@@ -53,6 +54,7 @@ function applyLanguage() {
   renderOrders();
   renderCarriers();
   renderDocuments();
+  if (currentUser) renderProfileSummary(currentUser);
 }
 
 function showToast(message) {
@@ -195,6 +197,65 @@ function setAuthChannel(channel) {
   });
 }
 
+function makeInitials(name) {
+  return (name || "Клиент")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase() || "КЛ";
+}
+
+function companyLabel(company) {
+  return company?.trim() || (currentLanguage === "ru" ? "Компания не указана" : "Company not set");
+}
+
+function saveUser(user) {
+  currentUser = {
+    name: user.name || "Клиент",
+    company: user.company || "",
+    role: user.role || "shipper",
+    phone: user.phone || "",
+    verified: user.verified !== false,
+    verifiedBy: user.verifiedBy || authChannel || "sms",
+    verifiedAt: user.verifiedAt || new Date().toISOString()
+  };
+  localStorage.setItem("gruzAuthUser", JSON.stringify(currentUser));
+  renderProfileSummary(currentUser);
+}
+
+function renderProfileSummary(user) {
+  const button = document.querySelector("#profile-button");
+  button.hidden = false;
+  document.querySelector("#profile-avatar").textContent = makeInitials(user.name);
+  document.querySelector("#profile-name").textContent = user.name || "Клиент";
+  document.querySelector("#profile-company").textContent = companyLabel(user.company);
+  document.querySelectorAll("[data-auth-open]").forEach((authButton) => {
+    authButton.textContent = authButton.dataset.authModeOpen === "register" ? t("auth.profile") : t("auth.inCabinet");
+  });
+}
+
+function openProfile() {
+  if (!currentUser) return;
+  const form = document.querySelector("#profile-form");
+  form.elements.name.value = currentUser.name || "";
+  form.elements.company.value = currentUser.company || "";
+  form.elements.role.value = currentUser.role || "shipper";
+  form.elements.phone.value = currentUser.phone || "";
+  document.querySelector("#verification-title").textContent = currentUser.verified ? t("profile.verifiedTitle") : t("profile.notVerifiedTitle");
+  document.querySelector("#verification-details").textContent = currentUser.verified
+    ? `${t("profile.verifiedBy")} ${currentUser.verifiedBy === "telegram" ? "Telegram" : "SMS"}`
+    : t("profile.notVerifiedDetails");
+  document.querySelector("#verification-status").textContent = currentUser.verified ? t("profile.verifiedStatus") : t("profile.notVerifiedStatus");
+  document.querySelector("#verification-status").className = `chip ${currentUser.verified ? "success" : "warning"}`;
+  document.querySelector("#profile-modal").hidden = false;
+}
+
+function closeProfile() {
+  document.querySelector("#profile-modal").hidden = true;
+}
+
 function openAuth(mode = "login") {
   setAuthMode(mode);
   setAuthChannel("sms");
@@ -210,9 +271,7 @@ function closeAuth() {
 
 function setProfile(user) {
   if (!user) return;
-  document.querySelectorAll("[data-auth-open]").forEach((button) => {
-    button.textContent = button.dataset.authModeOpen === "register" ? t("auth.profile") : t("auth.inCabinet");
-  });
+  saveUser(user);
 }
 
 document.querySelector("#language-select").addEventListener("change", (event) => {
@@ -223,7 +282,11 @@ document.querySelector("#language-select").addEventListener("change", (event) =>
 
 window.addEventListener("hashchange", () => setPage(location.hash.replace("#", "")));
 document.querySelectorAll("[data-page-link]").forEach((link) => {
-  link.addEventListener("click", () => setPage(link.dataset.pageLink));
+  link.addEventListener("click", () => {
+    setPage(link.dataset.pageLink);
+    link.blur();
+    document.querySelector(".app-main").focus({ preventScroll: true });
+  });
 });
 
 ["order-search", "order-status", "order-vehicle", "date-from", "date-to", "min-price", "max-price"].forEach((id) => {
@@ -275,7 +338,8 @@ document.querySelector("#auth-form").addEventListener("submit", (event) => {
   pendingUser = {
     phone,
     name: data.get("name") || "Клиент",
-    role: data.get("role") || "shipper"
+    role: data.get("role") || "shipper",
+    company: data.get("company") || ""
   };
   event.currentTarget.hidden = true;
   document.querySelector("#verify-form").hidden = false;
@@ -290,15 +354,13 @@ document.querySelector("#verify-form").addEventListener("submit", (event) => {
     showToast("Неверный код. Для демо используйте 2486.");
     return;
   }
-  localStorage.setItem("gruzAuthUser", JSON.stringify(pendingUser));
-  setProfile(pendingUser);
+  saveUser({ ...pendingUser, verified: true, verifiedBy: authChannel });
   closeAuth();
   showToast(`${authMode === "register" ? "Регистрация завершена" : "Вход выполнен"}: ${pendingUser.phone}`);
 });
 
 document.querySelector("#telegram-confirm").addEventListener("click", () => {
-  localStorage.setItem("gruzAuthUser", JSON.stringify(pendingUser));
-  setProfile(pendingUser);
+  saveUser({ ...pendingUser, verified: true, verifiedBy: "telegram" });
   closeAuth();
   showToast(`Telegram подтвержден: ${pendingUser.phone}`);
 });
@@ -309,11 +371,29 @@ document.querySelector("#back-to-phone").addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeAuth();
+  if (event.key === "Escape") {
+    closeAuth();
+    closeProfile();
+  }
 });
 
 const savedUser = localStorage.getItem("gruzAuthUser");
 if (savedUser) setProfile(JSON.parse(savedUser));
+
+document.querySelector("#profile-button").addEventListener("click", openProfile);
+document.querySelectorAll("[data-profile-close]").forEach((node) => node.addEventListener("click", closeProfile));
+document.querySelector("#profile-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  saveUser({
+    ...currentUser,
+    name: data.get("name"),
+    company: data.get("company"),
+    role: data.get("role")
+  });
+  closeProfile();
+  showToast(t("profile.saved"));
+});
 
 setPage(location.hash.replace("#", "") || "home");
 applyLanguage();
