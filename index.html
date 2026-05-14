@@ -40,12 +40,6 @@
           </a>
         </nav>
 
-        <div class="support-box">
-          <span class="status-dot"></span>
-          <strong data-i18n="support.title">Диспетчер онлайн</strong>
-          <small data-i18n="support.subtitle">Ответ обычно за 3 минуты</small>
-          <a href="tel:+78005550192">8 800 555-01-92</a>
-        </div>
       </aside>
 
       <main class="app-main" tabindex="-1">
@@ -175,27 +169,22 @@
                   <option value="gazelle" data-i18n="vehicle.gazelle">Газель</option>
                 </select>
               </label>
-              <details class="advanced-filter">
-                <summary data-i18n="filters.more">Еще фильтры</summary>
-                <div class="advanced-filter-grid">
-                  <label>
-                    <span data-i18n="filters.fromDate">Дата от</span>
-                    <input id="date-from" type="date">
-                  </label>
-                  <label>
-                    <span data-i18n="filters.toDate">Дата до</span>
-                    <input id="date-to" type="date">
-                  </label>
-                  <label>
-                    <span data-i18n="filters.minPrice">Ставка от</span>
-                    <input id="min-price" type="number" min="0" step="1000" placeholder="50000">
-                  </label>
-                  <label>
-                    <span data-i18n="filters.maxPrice">Ставка до</span>
-                    <input id="max-price" type="number" min="0" step="1000" placeholder="150000">
-                  </label>
-                </div>
-              </details>
+              <label>
+                <span data-i18n="filters.fromDate">Дата от</span>
+                <input id="date-from" type="date">
+              </label>
+              <label>
+                <span data-i18n="filters.toDate">Дата до</span>
+                <input id="date-to" type="date">
+              </label>
+              <label>
+                <span data-i18n="filters.minPrice">Ставка от</span>
+                <input id="min-price" type="number" min="0" step="1000" placeholder="50000">
+              </label>
+              <label>
+                <span data-i18n="filters.maxPrice">Ставка до</span>
+                <input id="max-price" type="number" min="0" step="1000" placeholder="150000">
+              </label>
               <button class="button ghost" type="button" id="reset-filters" data-i18n="filters.reset">Сбросить</button>
             </div>
           </section>
@@ -217,8 +206,7 @@
         <section class="page" id="page-carriers" data-page="carriers">
           <div class="page-head">
             <div>
-              <span class="section-kicker" data-i18n="carriers.kicker">Перевозчики</span>
-              <h1 data-i18n="carriers.title">Проверенные перевозчики</h1>
+              <h1 data-i18n="carriers.title">Перевозчики</h1>
             </div>
             <button class="button ghost" type="button" data-i18n="carriers.invite">Пригласить перевозчика</button>
           </div>
