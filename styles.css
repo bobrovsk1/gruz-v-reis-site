@@ -533,7 +533,8 @@ a:focus-visible {
 
 .quick-filters label,
 .auth-form label,
-.verify-form label {
+.verify-form label,
+.profile-form label {
   display: grid;
   gap: 0.4rem;
   color: var(--muted);
@@ -570,7 +571,7 @@ textarea {
 
 .table-row {
   display: grid;
-  grid-template-columns: 1.35fr 1.05fr 0.8fr 0.75fr 0.75fr;
+  grid-template-columns: 1.25fr 0.9fr 0.7fr 0.7fr 1fr 0.85fr;
   gap: 1rem;
   align-items: center;
   min-height: 3.7rem;
@@ -761,6 +762,10 @@ textarea {
   box-shadow: 0 26px 70px rgb(15 36 56 / 26%);
 }
 
+.profile-dialog {
+  width: 760px;
+}
+
 .close-button {
   position: absolute;
   top: 1rem;
@@ -835,6 +840,209 @@ textarea {
 .verification-card small {
   display: block;
   color: var(--muted);
+}
+
+.company-verification-card {
+  margin-top: 0.75rem;
+}
+
+.company-users {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.company-user-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 150px auto;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.company-user-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.company-user-row {
+  display: grid;
+  grid-template-columns: 1fr 150px auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.75rem;
+  background: var(--panel-soft);
+}
+
+.company-user-row small {
+  display: block;
+  color: var(--muted);
+}
+
+.admin-body {
+  min-width: 1180px;
+}
+
+.admin-main {
+  padding-bottom: 2rem;
+}
+
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.metric-card.compact {
+  min-height: 104px;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+.admin-users-panel,
+.verification-panel {
+  padding: 1.25rem;
+}
+
+.admin-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.admin-list,
+.verification-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-person {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  background: var(--panel-soft);
+}
+
+.admin-person .chip {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.admin-person small,
+.verification-item small,
+.decision-line {
+  display: block;
+  color: var(--muted);
+}
+
+.verification-toolbar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.segmented.compact {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.verification-panel .panel-head {
+  align-items: end;
+}
+
+.verification-panel .panel-head select {
+  width: 190px;
+}
+
+.verification-item {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  background: var(--panel-soft);
+}
+
+.verification-item-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.verification-item h3 {
+  margin-top: 0.5rem;
+}
+
+.verification-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.verification-details div {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.7rem;
+  background: var(--panel);
+}
+
+.verification-details dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.verification-details dd {
+  margin: 0.2rem 0 0;
+  font-weight: 750;
+}
+
+.verification-actions {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.chip.danger {
+  color: #b42318;
+  background: #fff0ee;
+}
+
+.danger-button {
+  color: #b42318;
+}
+
+.empty-state {
+  border: 1px dashed #9fb4c4;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  color: var(--muted);
+  background: var(--panel-soft);
+  text-align: center;
+  font-weight: 800;
 }
 
 .register-fields {

@@ -2,8 +2,9 @@
   "name": "freight-landing",
   "version": "1.0.0",
   "private": true,
-  "description": "Статический сайт для компании грузоперевозок.",
+  "description": "Локальное веб-приложение для грузоперевозок с JSON backend.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "check": "node --check server.js && node --check script.js && node --check request.js"
   }
 }

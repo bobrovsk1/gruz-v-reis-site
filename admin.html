@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Админская панель Груз в Рейс для управления администраторами и верификацией пользователей."
+    >
+    <title>Админка - Груз в Рейс</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="admin-body">
+    <div class="app-shell">
+      <aside class="sidebar admin-sidebar" aria-label="Навигация администратора">
+        <a class="brand" href="admin.html" aria-label="Админка Груз в Рейс">
+          <span class="brand-mark" aria-hidden="true">АД</span>
+          <span class="brand-text">
+            <strong>Админка</strong>
+            <small>Груз в Рейс</small>
+          </span>
+        </a>
+
+        <nav class="side-nav" aria-label="Разделы админки">
+          <a class="is-active" href="#verification">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"></path><path d="M9 12l2 2 4-4"></path></svg>
+            <span>Верификация</span>
+          </a>
+          <a href="#admins">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Админы</span>
+          </a>
+          <a href="index.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path><path d="M21 12H9"></path></svg>
+            <span>На сайт</span>
+          </a>
+        </nav>
+      </aside>
+
+      <main class="app-main admin-main" tabindex="-1">
+        <header class="topbar">
+          <div class="topbar-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35"></path><circle cx="11" cy="11" r="7"></circle></svg>
+            <input id="verification-search" type="search" placeholder="Компания, ИНН, контакт, телефон">
+          </div>
+          <div class="topbar-actions">
+            <a class="button ghost" href="index.html">Открыть сайт</a>
+          </div>
+        </header>
+
+        <section class="page is-active" id="verification">
+          <div class="page-head">
+            <div>
+              <span class="section-kicker">Админская панель</span>
+              <h1>Верификация пользователей и доступ админов</h1>
+              <p>Проверяйте заявки компаний, перевозчиков и заказчиков перед выдачей доступа к сделкам.</p>
+            </div>
+          </div>
+
+          <section class="admin-metrics" aria-label="Сводка администрирования">
+            <article class="metric-card compact">
+              <strong id="admin-pending-count">0</strong>
+              <span>ожидают проверки</span>
+            </article>
+            <article class="metric-card compact">
+              <strong id="admin-verified-count">0</strong>
+              <span>верифицированы</span>
+            </article>
+            <article class="metric-card compact">
+              <strong id="admin-count">0</strong>
+              <span>администраторов</span>
+            </article>
+          </section>
+
+          <section class="admin-layout">
+            <aside class="panel admin-users-panel" id="admins">
+              <div class="panel-head compact">
+                <div>
+                  <span class="section-kicker">Доступ</span>
+                  <h2>Администраторы</h2>
+                </div>
+              </div>
+
+              <form class="admin-form" id="admin-form">
+                <label>
+                  <span>Имя администратора</span>
+                  <input name="name" placeholder="Анна Смирнова" required>
+                </label>
+                <label>
+                  <span>Телефон</span>
+                  <input name="phone" type="tel" inputmode="tel" placeholder="+7 999 555-12-34" required>
+                </label>
+                <label>
+                  <span>Права</span>
+                  <select name="role">
+                    <option value="owner">Главный админ</option>
+                    <option value="verifier">Верификатор</option>
+                    <option value="support">Поддержка</option>
+                  </select>
+                </label>
+                <button class="button primary full" type="submit">Добавить админа</button>
+              </form>
+
+              <div class="admin-list" id="admin-list"></div>
+            </aside>
+
+            <section class="panel verification-panel">
+              <div class="panel-head compact">
+                <div>
+                  <span class="section-kicker">Очередь</span>
+                  <h2>Заявки на верификацию</h2>
+                </div>
+                <select id="verification-status-filter" aria-label="Фильтр по статусу">
+                  <option value="all">Все</option>
+                  <option value="pending">На проверке</option>
+                  <option value="verified">Проверен</option>
+                  <option value="rejected">Отклонен</option>
+                </select>
+              </div>
+
+              <div class="verification-toolbar">
+                <div class="segmented compact" id="verification-type-filter" role="tablist" aria-label="Тип пользователя">
+                  <button class="is-active" type="button" data-verify-filter="all">Все</button>
+                  <button type="button" data-verify-filter="company">Компании</button>
+                  <button type="button" data-verify-filter="carrier">Перевозчики</button>
+                  <button type="button" data-verify-filter="customer">Заказчики</button>
+                </div>
+              </div>
+
+              <div class="verification-list" id="verification-list"></div>
+            </section>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="admin.js"></script>
+  </body>
+</html>

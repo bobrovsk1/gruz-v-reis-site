@@ -196,7 +196,8 @@
                 <span role="columnheader" data-i18n="orders.colCargo">Груз</span>
                 <span role="columnheader" data-i18n="orders.colVehicle">Кузов</span>
                 <span role="columnheader" data-i18n="orders.colPrice">Ставка</span>
-                <span role="columnheader" data-i18n="orders.colStatus">Статус</span>
+                <span role="columnheader" data-i18n="orders.colUser">Пользователь</span>
+                <span role="columnheader" data-i18n="orders.colVerification">Верификация</span>
               </div>
               <div id="orders-list"></div>
             </div>
@@ -250,6 +251,7 @@
             </div>
           </section>
         </section>
+
       </main>
     </div>
 
@@ -336,7 +338,7 @@
 
     <div class="profile-modal" id="profile-modal" hidden>
       <div class="auth-backdrop" data-profile-close></div>
-      <section class="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+      <section class="auth-dialog profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profile-title">
         <button class="icon-button close-button" type="button" data-profile-close aria-label="Закрыть окно">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
         </button>
@@ -356,6 +358,15 @@
           <b id="verification-status" class="chip success">Проверен</b>
         </div>
 
+        <div class="verification-card company-verification-card">
+          <span class="status-dot"></span>
+          <div>
+            <strong id="company-verification-title">Компания проверена</strong>
+            <small id="company-verification-details">Проверка со стороны сайта пройдена</small>
+          </div>
+          <b id="company-verification-status" class="chip success">Проверена</b>
+        </div>
+
         <form class="profile-form" id="profile-form">
           <label>
             <span data-i18n="auth.name">Имя</span>
@@ -364,6 +375,10 @@
           <label>
             <span data-i18n="auth.company">Компания</span>
             <input name="company" autocomplete="organization" required>
+          </label>
+          <label>
+            <span data-i18n="profile.companyInn">ИНН компании</span>
+            <input name="companyInn" inputmode="numeric" placeholder="7700000000">
           </label>
           <label>
             <span data-i18n="auth.role">Роль</span>
@@ -379,6 +394,26 @@
           </label>
           <button class="button primary full" type="submit" data-i18n="profile.save">Сохранить изменения</button>
         </form>
+
+        <section class="company-users">
+          <div class="panel-head compact">
+            <div>
+              <span class="section-kicker" data-i18n="profile.companyKicker">Компания</span>
+              <h3 data-i18n="profile.companyUsers">Пользователи компании</h3>
+            </div>
+          </div>
+          <form class="company-user-form" id="company-user-form">
+            <input name="name" data-i18n-placeholder="profile.userNamePlaceholder" placeholder="Имя сотрудника" required>
+            <input name="phone" inputmode="tel" data-i18n-placeholder="profile.userPhonePlaceholder" placeholder="+7 999 000-00-00" required>
+            <select name="role">
+              <option value="manager" data-i18n="profile.userRoleManager">Менеджер</option>
+              <option value="logist" data-i18n="profile.userRoleLogist">Логист</option>
+              <option value="accountant" data-i18n="profile.userRoleAccountant">Бухгалтер</option>
+            </select>
+            <button class="button ghost" type="submit" data-i18n="profile.addUser">Добавить</button>
+          </form>
+          <div class="company-user-list" id="company-user-list"></div>
+        </section>
       </section>
     </div>
 
